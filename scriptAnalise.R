@@ -24,9 +24,12 @@ View(empregados)
 
 #tratamento dos dados
 
-#trocar a coluna de timestamp por um indice
-colnames(empregados)[colnames(empregados) == 'Timestamp'] <- 'id'
-empregados <- empregados %>% mutate(id = row_number())
+#gerando o eventId com a coluna de Timestamp
+empregados$eventID <- str_replace_all(empregados$Timestamp, c("\\s"="", "\\:"="", "-"="")) 
+
+#gerando o id da linha
+colnames(empregados)[colnames(empregados) == 'Timestamp'] <- 'sequenceID'
+empregados <- empregados %>% mutate(sequenceID = row_number())
 
 #tirando os espaços das strings
 empregados$Country <- str_replace_all(empregados$Country, c("\\s"="_", "\\."="_", "-"="_"))
@@ -49,16 +52,28 @@ View(empregados)
 #tratando o formato do genero
 empregados$Gender <- str_replace_all(toupper(empregados$Gender),c("FEMALE"="F", "MALE"="M"))
 
+empregados$size = 1
 
 write_delim( 
-  empregados,
-  delim ="\t", file = "survey.txt", col_names = FALSE
+  empregados %>% select( c(sequenceID, eventID, size, Age)) ,
+  delim ="\t", path = "player_transactions.txt", col_names = FALSE
 )
 
-#busca por relações
-empregT <- read_baskets("survey.txt", sep = "[ \t]+",info =  empregados)
-View(empregT)
+#iniciando a busca por relações
+empregT <- read_baskets("survey.txt", sep = "[ \t]+",info =  c("sequenceID","eventID","size") )
 
-#teste
+summary(empregT)
 
-#teste 2
+empregSeq <- cspade(
+  empregT, 
+  parameter = list(support = 0.00010, maxlen=3), 
+  control   = list(verbose = TRUE)
+)
+
+summary(empregSeq)
+
+#trabalhando na visualização
+seqResult = as(empregSeq, "data.frame")
+seqResult = seqResult %>% mutate(
+    sequence = as.character(sequence)
+  )
