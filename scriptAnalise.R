@@ -55,8 +55,8 @@ empregados$Gender <- str_replace_all(toupper(empregados$Gender),c("FEMALE"="F", 
 empregados$size = 1
 
 write_delim( 
-  empregados %>% select( c(sequenceID, eventID, size, Age)) ,
-  delim ="\t", path = "player_transactions.txt", col_names = FALSE
+  empregados %>% select( c(sequenceID, eventID, size, Gender)) ,
+  delim ="\t", path = "survey.txt", col_names = FALSE
 )
 
 #iniciando a busca por relações
@@ -66,7 +66,7 @@ summary(empregT)
 
 empregSeq <- cspade(
   empregT, 
-  parameter = list(support = 0.00010, maxlen=3), 
+  parameter = list(support = 0.00010, maxlen=2), 
   control   = list(verbose = TRUE)
 )
 
