@@ -25,7 +25,10 @@ View(empregados)
 #tratamento dos dados
 
 #gerando o eventId com a coluna de Timestamp
-empregados$eventID <- str_replace_all(empregados$Timestamp, c("\\s"="", "\\:"="", "-"="")) 
+#empregados$Timestamp <- str_replace_all(empregados$Timestamp, c("\\s"="", "\\:"="", "-"="")) 
+#empregados$eventID <- empregados$Timestamp
+#troquei a geração do eventID para corrigir o bug de factor
+empregados <- empregados %>% mutate(eventID = row_number())
 
 #gerando o id da linha
 colnames(empregados)[colnames(empregados) == 'Timestamp'] <- 'sequenceID'
@@ -47,26 +50,29 @@ empregados$comments <- str_replace_all(empregados$comments, c("\\s"="_", "\\."="
 
 empregados$no_employees <- str_replace_all(empregados$no_employees, c("\\s"="_"))
 
-View(empregados)
-
 #tratando o formato do genero
+#precisa substituir os que estão divergentes, porque na survey não existe um padrão
 empregados$Gender <- str_replace_all(toupper(empregados$Gender),c("FEMALE"="F", "MALE"="M"))
 
 empregados$size = 1
 
+View(empregados)
+
+#escrevendo um novo arquivo com a parte mais importante da análise
 write_delim( 
-  empregados %>% select( c(sequenceID, eventID, size, Gender)) ,
-  delim ="\t", path = "survey.txt", col_names = FALSE
+  empregados %>% select( c(sequenceID, eventID, size, remote_work)) ,
+  delim =";", path = "survey.txt", col_names = FALSE
 )
 
-#iniciando a busca por relações
-empregT <- read_baskets("survey.txt", sep = "[ \t]+",info =  c("sequenceID","eventID","size") )
+#lendo o arquivo gerado
+empregT <- read_baskets("survey.txt", sep = ";",info = c("sequenceID","eventID","size") )
 
 summary(empregT)
 
+#iniciando a busca por relações
 empregSeq <- cspade(
   empregT, 
-  parameter = list(support = 0.00010, maxlen=2), 
+  parameter = list(support = 0.00010, maxlen=3), 
   control   = list(verbose = TRUE)
 )
 
@@ -75,5 +81,5 @@ summary(empregSeq)
 #trabalhando na visualização
 seqResult = as(empregSeq, "data.frame")
 seqResult = seqResult %>% mutate(
-    sequence = as.character(sequence)
-  )
+  sequence = as.character(sequence)
+)
