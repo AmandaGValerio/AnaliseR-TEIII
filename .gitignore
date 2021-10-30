@@ -1,3 +1,5 @@
+survey.txt
+
 # History files
 .Rhistory
 .Rapp.history
@@ -31,9 +33,6 @@ vignettes/*.pdf
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
-
-#Text archives
-*.txt
 
 # Shiny token, see https://shiny.rstudio.com/articles/shinyapps.html
 rsconnect/
