@@ -1,4 +1,4 @@
-#autores: Amanda, Laura
+#autores: Amanda, Edson, Laura
 
 #importação de bibliotecas necessárias
 install.packages("arules")
@@ -24,6 +24,10 @@ View(empregados)
 
 #tratamento dos dados
 
+#excluindo colunas desnecessárias
+empregados$comments <- NULL
+empregados$state <- NULL
+
 #gerando o eventId com a coluna de Timestamp
 #empregados$Timestamp <- str_replace_all(empregados$Timestamp, c("\\s"="", "\\:"="", "-"="")) 
 #empregados$eventID <- empregados$Timestamp
@@ -33,6 +37,9 @@ empregados <- empregados %>% mutate(eventID = row_number())
 #gerando o id da linha
 colnames(empregados)[colnames(empregados) == 'Timestamp'] <- 'sequenceID'
 empregados <- empregados %>% mutate(sequenceID = row_number())
+
+#criando a coluna size
+empregados$size = 1
 
 #tirando os espaços das strings
 empregados$Country <- str_replace_all(empregados$Country, c("\\s"="_", "\\."="_", "-"="_"))
@@ -46,15 +53,15 @@ empregados$coworkers <- str_replace_all(empregados$coworkers, c("\\s"="_", "\\."
 empregados$supervisor <- str_replace_all(empregados$supervisor, c("\\s"="_", "\\."="_", "-"="_"))
 empregados$mental_vs_physical <- str_replace_all(empregados$mental_vs_physical, c("\\s"="_", "\\."="_", "-"="_"))
 empregados$obs_consequence <- str_replace_all(empregados$obs_consequence, c("\\s"="_", "\\."="_", "-"="_"))
-empregados$comments <- str_replace_all(empregados$comments, c("\\s"="_", "\\."="_", "-"="_"))
+#empregados$comments <- str_replace_all(empregados$comments, c("\\s"="_", "\\."="_", "-"="_"))
 
 empregados$no_employees <- str_replace_all(empregados$no_employees, c("\\s"="_"))
 
 #tratando o formato do genero
-#precisa substituir os que estão divergentes, porque na survey não existe um padrão
+#precisa substituir os que estão diferentes, porque na survey não existe um padrão
+empregados$Gender <- str_replace_all(empregados$Gender, c("\\s"="", "\\."="", "-"="","\\("="", "\\)"=""))
+empregados$Gender <- str_replace_all(toupper(empregados$Gender),c("CIS"="", "TRANS"=""))
 empregados$Gender <- str_replace_all(toupper(empregados$Gender),c("FEMALE"="F", "MALE"="M"))
-
-empregados$size = 1
 
 View(empregados)
 
