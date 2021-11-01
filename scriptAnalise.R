@@ -94,9 +94,7 @@ seqResult = seqResult %>% mutate(
   sequence = as.character(sequence)
 )
 
-#setando o workspace
-setwd("D:/TE3/AnaliseR-TEIII-main")
-
+#Segunda Análise
 #tratamento dos dados
 
 #excluindo da base as idades que estão fora do range 18-80
@@ -131,26 +129,32 @@ no_self_employed$Gender <- str_replace_all(no_self_employed$Gender, c("\\s"="", 
 no_self_employed$Gender <- str_replace_all(toupper(no_self_employed$Gender),c("CIS"="", "TRANS"=""))
 no_self_employed$Gender <- str_replace_all(toupper(no_self_employed$Gender),c("FEMALE"="F", "MALE"="M"))
 
+datasetTest <- no_self_employed
+datasetTest$Country <- NULL
+datasetTest$work_interfere <- NULL
+datasetTest$no_employees <- NULL
+datasetTest$size <- NULL
 
-#rules <- apriori(no_self_employed, parameter = list(supp = 0.001, conf = 0.7, minlen=2))
+
+
+#rules <- apriori(no_self_employed, parameter = list(supp = 0.6, conf = 0.8))
+
 
 #escrevendo um novo arquivo com a parte mais importante da análise
 write_delim( 
-  no_self_employed,
-  delim =";", path = "no_self_employed.txt", col_names = FALSE
+  datasetTest,
+  delim =";", path = "dataset.txt", col_names = FALSE
 )
 
-infos = colnames(no_self_employed)
-
 #lendo o arquivo gerado
-no_self_employedgT <- read_baskets("no_self_employed.txt", sep = ";", info = c(infos) )
+no_self_employedgT <- read_baskets("dataset.txt", sep = ";", info = c("sequenceID","eventID", "Age", "Gender") )
 
 summary(no_self_employedgT)
 
 #iniciando a busca por relações
 no_self_employedSeq <- cspade(
   no_self_employedgT, 
-  parameter = list(support = 0.004, maxlen=3), 
+  parameter = list(support = 0.0001, maxlen=3), 
   control   = list(verbose = TRUE)
 )
 
